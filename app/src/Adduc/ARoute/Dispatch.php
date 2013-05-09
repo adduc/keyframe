@@ -4,8 +4,8 @@ namespace Adduc\ARoute;
 
 class Dispatch {
 
-    protected
-        $router;
+    protected $router;
+    public $controller_namespace;
 
     public function __construct(Router $router = null) {
         $this->router($router);
@@ -42,19 +42,36 @@ class Dispatch {
             throw new \Exception("No match found.");
         }
 
-        $match['class'] = ucfirst($match['class']);
+        $match['class'] = $this->controller_namespace . "\\" . ucfirst($match['class']);
 
         if(!class_exists($match['class'])) {
-            throw new \Exception("Class ({$match['class']}) not found.");
+            if(!class_exists(__NAMESPACE__ . '\\' . $match['class'])) {
+                throw new \Exception("Class ({$match['class']}) not found.");
+            } else {
+                $match['class'] = __NAMESPACE__ . '\\' . $match['class'];
+            }
 
-        } elseif(is_callable(array($match['class'], $match['method']))) {
-            $obj = new $match['class']();
-            return call_user_method($match['method'], $obj, $request, $match);
+        } elseif(!is_callable(array($match['class'], $match['method']))) {
+            throw new \Exception("Method not callable.");
 
-        } else {
-            throw new \Exception("Unexpected match data.");
+        } elseif(!is_a($match['class'], __NAMESPACE__ . "\\Controller", true)) {
+
+            throw new \Exception("Class not instance of Controller.");
+
         }
 
+        $rc = new \ReflectionClass($match['class']);
+        $constructor = $rc->getConstructor();
+        if($constructor && $constructor->name == end(explode('\\', $rc->name))) {
+            $constructor = null;
+        }
+
+        if(!is_null($constructor) && $constructor->getNumberOfRequiredParameters()) {
+            throw new \Exception("Class constructor requires parameters.");
+        }
+
+        $class = new $match['class']();
+        $class->run($match['method'], $request, $match);
     }
 
     public function router(Router $router = null) {

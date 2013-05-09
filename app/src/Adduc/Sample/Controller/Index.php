@@ -5,7 +5,7 @@ use Adduc\AMvc\Controller;
 
 class Index extends Controller {
 
-    public function sample() {}
+    public function sampleAction() {}
 
     public function error() {
         if(!$this->match['error']) {

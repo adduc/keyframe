@@ -11,6 +11,9 @@
             "Adduc":"app/src"
         }
     },
+    "require": {
+        "doctrine/inflector": "v1.0"
+    },
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
     },

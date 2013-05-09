@@ -1,69 +1,55 @@
 <?php
 
 namespace Adduc\AMvc;
-use Adduc\ARoute;
+use Adduc\ARoute\Request;
+use Doctrine\Common\Inflector\Inflector;
 
 class Controller {
 
     protected
-		/**
-		 * @var ARoute\Request
-		 */
         $request,
-
-		/**
-		 * @var array
-		 */
-        $match,
-
-        /**
-         * @var array
-         */
-        $view = array(
-			'data' => array(),
-			'template' => null
-        ),
-
-        /**
-         * @var array
-         */
-        $layout = array(
-			'data' => array('view' => false),
-			'template' => 'default'
-        );
+        $view,
+        $layout,
+        $matched = array(),
+        $viewVars = array();
 
     /**
      * @param string action
-     * @param ARoute\Request|null $request
+     * @param Request|null $request
      * @param array|null $match
      * @return void
      */
-    public function run($action, ARoute\Request $request = null, $match = null) {
-        $this->request = $request;
-        $this->match = $match;
-        $class = explode('\\', get_called_class());
-        $this->view['template'] = strtolower(end($class)) . "/" . $action;
+    public function run($action, Request $request = null, $matched = null) {
+        $callable = array(
+            get_called_class(),
+            Inflector::camelize($action) . "Action"
+        );
 
-        $this->$action();
+        $rc = new \ReflectionClass(get_called_class());
+        $rm = $rc && $rc->hasMethod($callable[0])
+            ? $rc->getMethod($callable[0]) : false;
 
-        $this->render($this->view['template'], $this->layout['template']);
+        if(!$rm) {
+            throw new Exception\ActionDoesNotExist($callable);
+        } elseif(!$rm->isPublic() || $rm->isStatic() || $rm->isAbstract()) {
+            throw new Exception\ActionIsNotCallable($callable);
+        }
+
+        $this->request = $request ?: new Request();
+        $this->matched = $matched;
+
+
+        $class = explode('\\', get_called_class() . "/{$action}");
+        $this->view = new View(end($class));
+        $rc->invoke($this);
+        $this->render($this->view, $this->layout);
     }
 
-    public function render($view_template, $layout_template) {
-        $view = new View();
-
-        if($view_template) {
-            $this->layout['data']['view']
-				= $view->render($view_template, $this->view['data']);
-        }
-
-        if($layout_template) {
-            echo $view->render("templates/{$layout_template}", $this->layout['data']);
-        } else {
-            echo $this->layout['data']['view'];
-        }
-
-        $this->view['template'] = $this->layout['template'] = false;
+    public function render(View $view = null, View $layout = null, array $data = null) {
+        $data = is_null($data) ? $this->viewVars : $data;
+        $data['view'] = $view->render($data);
+        echo $layout ? $layout->render($data) : $data;
+        $this->view = $this->layout = null;
     }
 
 }
