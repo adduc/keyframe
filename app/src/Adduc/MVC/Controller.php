@@ -5,6 +5,8 @@ use Doctrine\Common\Inflector\Inflector;
 
 class Controller {
 
+    public $viewPath;
+
     protected
         $request,
         $view,
@@ -12,9 +14,7 @@ class Controller {
         $matched = array(),
         $viewVars = array();
 
-    public function __construct() {
-        $this->layout = new View('layouts/default');
-    }
+    public function __construct() {}
 
     /**
      * @param string action
@@ -43,7 +43,11 @@ class Controller {
 
 
         $class = explode('\\', get_called_class() . "/{$action}");
-        $this->view = new View(end($class));
+        $view = Inflector::tableize(end($class));
+
+        $this->view = new View($this->viewPath . '/' . $view);
+        $this->layout = new View($this->viewPath . '/layouts/default');
+
         $rm->invoke($this);
         $this->render();
     }

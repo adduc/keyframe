@@ -11,8 +11,7 @@ class View {
     }
 
     public function setFile($file) {
-        $dir = dirname(dirname(dirname(__DIR__)));
-        $file =  $dir . strtolower("/views/{$file}.php");
+        $file = "{$file}.php";
         if(is_readable($file) && is_file($file)) {
             $this->file = $file;
         } else {

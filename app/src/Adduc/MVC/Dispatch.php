@@ -5,7 +5,9 @@ namespace Adduc\MVC;
 class Dispatch {
 
     protected $router;
-    public $controller_namespace;
+    public
+        $controller_namespace,
+        $view_path;
 
     public function __construct(Router $router = null) {
         $this->router($router);
@@ -64,6 +66,7 @@ class Dispatch {
         }
 
         $class = new $match['class']();
+        $class->viewPath = $this->view_path;
         $class->run($match['method'], $request, $match);
     }
 

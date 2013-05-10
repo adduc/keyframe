@@ -17,6 +17,7 @@ $router->add(new Route('/.*?', ['method' => 'error']), 'error');
 
 $dispatch = new Dispatch($router);
 $dispatch->controller_namespace = "Adduc\\Sample\\Controller";
+$dispatch->view_path = dirname(__DIR__) . '/views';
 $dispatch->dispatch();
 
 debug_panel();
