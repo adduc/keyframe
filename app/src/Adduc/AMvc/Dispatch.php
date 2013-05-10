@@ -3,9 +3,39 @@
 namespace Adduc\AMvc;
 use Adduc\ARoute;
 
-class Dispatch extends ARoute\Dispatch {
+class Dispatch {
 
+    protected $router;
     public $controller_namespace;
+
+    public function __construct(Router $router = null) {
+        $this->router($router);
+    }
+
+    public function dispatch(Request $request = null) {
+        if(is_null($request)) {
+            $request = new Request();
+        }
+
+        try {
+            $match = $this->router->matches($request);
+            $this->runMatch($request, $match);
+        } catch(\Exception $e) {
+            try {
+                $match = $this->router->matches($request, 'error');
+                if($match) {
+					$match['error'] = $e;
+				}
+                $this->runMatch($request, $match);
+            } catch(\Exception $e) {
+                error_log($e);
+                $msg = "An error occurred while running error handler.";
+                $msg.= " Request Aborted.";
+                die($msg);
+            }
+        }
+
+    }
 
     public function runMatch($request, $match) {
 
@@ -22,9 +52,6 @@ class Dispatch extends ARoute\Dispatch {
                 $match['class'] = __NAMESPACE__ . '\\' . $match['class'];
             }
 
-        } elseif(!is_callable(array($match['class'], $match['method']))) {
-            throw new \Exception("Method not callable.");
-
         } elseif(!is_a($match['class'], __NAMESPACE__ . "\\Controller", true)) {
 
             throw new \Exception("Class not instance of Controller.");
@@ -33,10 +60,6 @@ class Dispatch extends ARoute\Dispatch {
 
         $rc = new \ReflectionClass($match['class']);
         $constructor = $rc->getConstructor();
-        if($constructor && $constructor->name == end(explode('\\', $rc->name))) {
-            $constructor = null;
-        }
-
         if(!is_null($constructor) && $constructor->getNumberOfRequiredParameters()) {
             throw new \Exception("Class constructor requires parameters.");
         }
@@ -45,4 +68,12 @@ class Dispatch extends ARoute\Dispatch {
         $class->run($match['method'], $request, $match);
     }
 
+    public function router(Router $router = null) {
+        if(is_null($router)) {
+            return $this->router;
+        }
+        $this->router = $router;
+    }
+
 }
+

@@ -1,6 +1,6 @@
 <?php
 
-namespace Adduc\ARoute;
+namespace Adduc\AMvc;
 
 class Request {
     public

@@ -7,7 +7,7 @@ class Index extends Controller {
 
     public function sampleAction() {}
 
-    public function error() {
+    public function errorAction() {
         if(!$this->match['error']) {
             throw new Exception("Not directly accessible.");
         }

@@ -4,21 +4,33 @@ namespace Adduc\AMvc;
 
 class View {
 
-    function render($view, $data) {
-        $path = dirname(dirname(dirname(__DIR__))) . "/views/{$view}.php";
-        if(is_file($path) && is_readable($path)) {
-            $this->path = $path;
-            ob_start();
-            extract($data);
-            include($this->path);
-            $view = ob_get_contents();
-            ob_end_clean();
-            return $view;
+    protected $file;
+
+    public function __construct($file = null) {
+        $file && $this->setFile($file);
+    }
+
+    public function setFile($file) {
+        $dir = dirname(dirname(dirname(__DIR__)));
+        $file =  $dir . strtolower("/views/{$file}.php");
+        if(is_readable($file) && is_file($file)) {
+            $this->file = $file;
         } else {
-            $msg = "View {$view} does not exist.";
-            $msg.= "\nExpected location: {$path}";
-            throw new \Exception($msg);
+            throw new \Exception("View does not exist: {$file}");
         }
+    }
+
+    function render($data) {
+        if(is_null($this->file)) {
+            throw new \Exception("File must be set before View can render.");
+        }
+
+        ob_start();
+        extract($data);
+        include($this->file);
+        $view = ob_get_contents();
+        ob_end_clean();
+        return $view;
     }
 
 }

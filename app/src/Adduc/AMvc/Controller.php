@@ -1,7 +1,6 @@
 <?php
 
 namespace Adduc\AMvc;
-use Adduc\ARoute\Request;
 use Doctrine\Common\Inflector\Inflector;
 
 class Controller {
@@ -12,6 +11,10 @@ class Controller {
         $layout,
         $matched = array(),
         $viewVars = array();
+
+    public function __construct() {
+        $this->layout = new View('layouts/default');
+    }
 
     /**
      * @param string action
@@ -26,8 +29,8 @@ class Controller {
         );
 
         $rc = new \ReflectionClass(get_called_class());
-        $rm = $rc && $rc->hasMethod($callable[0])
-            ? $rc->getMethod($callable[0]) : false;
+        $rm = $rc && $rc->hasMethod($callable[1])
+            ? $rc->getMethod($callable[1]) : false;
 
         if(!$rm) {
             throw new Exception\ActionDoesNotExist($callable);
@@ -41,14 +44,16 @@ class Controller {
 
         $class = explode('\\', get_called_class() . "/{$action}");
         $this->view = new View(end($class));
-        $rc->invoke($this);
-        $this->render($this->view, $this->layout);
+        $rm->invoke($this);
+        $this->render();
     }
 
     public function render(View $view = null, View $layout = null, array $data = null) {
+        $view = is_null($view) ? $this->view : $view;
+        $layout = is_null($layout) ? $this->layout : $layout;
         $data = is_null($data) ? $this->viewVars : $data;
         $data['view'] = $view->render($data);
-        echo $layout ? $layout->render($data) : $data;
+        echo $layout ? $layout->render($data) : $data['view'];
         $this->view = $this->layout = null;
     }
 
