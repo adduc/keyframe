@@ -2,6 +2,11 @@
 namespace Adduc\MVC\Exception;
 
 class ControllerDoesNotExist extends Exception {
+
+    public function friendlyMessage() {
+
+    }
+
 }
 
 /*
