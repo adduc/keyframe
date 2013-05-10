@@ -1,6 +1,6 @@
 <?php
 
-namespace Adduc\AMvc;
+namespace Adduc\MVC;
 
 class Route {
     protected

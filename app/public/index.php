@@ -1,6 +1,6 @@
 <?php
 
-namespace Adduc\AMvc;
+namespace Adduc\MVC;
 
 include(dirname(__DIR__) . '/debug.php');
 include(dirname(__DIR__) . '/vendor/autoload.php');

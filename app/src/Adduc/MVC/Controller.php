@@ -1,6 +1,6 @@
 <?php
 
-namespace Adduc\AMvc;
+namespace Adduc\MVC;
 use Doctrine\Common\Inflector\Inflector;
 
 class Controller {

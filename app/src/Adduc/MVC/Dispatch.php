@@ -1,7 +1,6 @@
 <?php
 
-namespace Adduc\AMvc;
-use Adduc\ARoute;
+namespace Adduc\MVC;
 
 class Dispatch {
 

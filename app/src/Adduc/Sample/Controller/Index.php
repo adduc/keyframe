@@ -1,7 +1,7 @@
 <?php
 
 namespace Adduc\Sample\Controller;
-use Adduc\AMvc\Controller;
+use Adduc\MVC\Controller;
 
 class Index extends Controller {
 
