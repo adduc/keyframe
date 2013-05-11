@@ -1,6 +1,6 @@
 <?php
 
-namespace Adduc\AMvc\Exception;
+namespace Adduc\MVC\Exception;
 
 class ActionDoesNotExist extends Exception {
     public function __construct($callable, $code = 0, \Exception $previous = null) {
