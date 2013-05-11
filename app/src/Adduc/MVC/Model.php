@@ -1,7 +1,6 @@
 <?php
 
 namespace Adduc\DomainTracker\Model;
-use Adduc\DomainTracker;
 
 abstract class Model {
 
