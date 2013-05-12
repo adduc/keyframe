@@ -48,14 +48,16 @@ class Dispatch {
 
         if(!class_exists($match['class'])) {
             if(!class_exists(__NAMESPACE__ . '\\' . $match['class'])) {
-                throw new \Exception("Class ({$match['class']}) not found.");
+                $msg = "Class ({$match['class']}) not found.";
+                throw new Exception\ControllerDoesNotExist($match['class']);
             } else {
                 $match['class'] = __NAMESPACE__ . '\\' . $match['class'];
             }
 
         } elseif(!is_a($match['class'], __NAMESPACE__ . "\\Controller", true)) {
 
-            throw new \Exception("Class not instance of Controller.");
+            $msg = "Class not instance of Controller.";
+            throw new Exception\ControllerDoesNotInherit($msg);
 
         }
 
