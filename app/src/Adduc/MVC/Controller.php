@@ -56,7 +56,8 @@ class Controller {
         $view = is_null($view) ? $this->view : $view;
         $layout = is_null($layout) ? $this->layout : $layout;
         $data = is_null($data) ? $this->viewVars : $data;
-        $data['view'] = $view->render($data);
+
+        $data['view'] = $view ? $view->render($data) : '';
         echo $layout ? $layout->render($data) : $data['view'];
         $this->view = $this->layout = null;
     }
